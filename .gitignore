@@ -1,3 +1,11 @@
+# VS Code
+.vscode/
+
+# Miscellaneous
+INFO.txt
+TODO.txt
+DBHub API.rest
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
