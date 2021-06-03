@@ -2,6 +2,7 @@
 .vscode/
 
 # Miscellaneous
+Generate_requirements.txt.cmd
 INFO.txt
 TODO.txt
 DBHub_API.rest
