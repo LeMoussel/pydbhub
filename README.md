@@ -22,7 +22,7 @@ Please try it out, submits PRs to extend or fix things, and report any weirdness
 ## Pre-requisites
 
 * [Python](https://www.python.org/) version 3.7
-  * Older Python releases should NOY be OK. Newer Python releases should be ok,, but only Python 3.7 has been tested (so far).
+  * Older Python releases should NOT be OK. Newer Python releases should be OK, but only Python 3.7 has been tested (so far).
 * A DBHub.io API key
   * These can be generated in your [Settings](https://dbhub.io/pref) page, when logged in.
 
