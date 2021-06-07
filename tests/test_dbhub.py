@@ -2,7 +2,7 @@ import pytest
 import configparser
 import os
 
-import dbhub
+import pydbhub.dbhub as dbhub
 
 CONFIG = '''
     [dbhub]
@@ -156,8 +156,8 @@ def test_upload(connection):
     info = dbhub.UploadInformation(
         commitmsg="An test upload",
     )
-    myDB = os.path.join(os.getcwd(), 'tests', 'example.db')
-    with open(myDB, 'rb') as f:
+    my_db = os.path.join(os.getcwd(), 'tests', 'example.db')
+    with open(my_db, 'rb') as f:
         res, err = connection.Upload(db_name='test_somedb.sqlite', info=info, db_bytes=f)
     assert err is None, err
 

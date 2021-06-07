@@ -6,7 +6,7 @@ from platform import python_version
 from rich.console import Console
 from rich.theme import Theme
 
-import dbhub
+import pydbhub.dbhub as dbhub
 
 if __name__ == '__main__':
     custom_theme = Theme({

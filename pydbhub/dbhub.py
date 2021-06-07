@@ -12,11 +12,11 @@ from typing_extensions import Literal
 import dateutil.parser as p
 
 
-import httphub
+import pydbhub.httphub as httphub
 
 
 # Dictionnary to object
-class _Dbhub__dict_to_object(object):
+class _DbhubDictToObject(object):
     def __init__(self, data):
         for name, value in data.items():
             setattr(self, name, self._wrap(value))
@@ -25,47 +25,45 @@ class _Dbhub__dict_to_object(object):
         if isinstance(value, (tuple, list, set, frozenset)):
             return type(value)([self._wrap(v) for v in value])
         else:
-            return _Dbhub__dict_to_object(value) if isinstance(value, dict) else value
+            return _DbhubDictToObject(value) if isinstance(value, dict) else value
 
 
 # Connection is a simple container holding the API key and address of the DBHub.io server
 @dataclass()
 class Connection:
-    api_key: str = None
+    api_key: str = ''
     server: str = "https://api.dbhub.io"
 
 
 # Identifier holds information used to identify a specific commit, tag, release, or the head of a specific branch
 @dataclass()
 class Identifier:
-    branch: str = None
-    commit_id: str = None
-    release: str = None
-    tag: str = None
+    branch: str = ''
+    commit_id: str = ''
+    release: str = ''
+    tag: str = ''
 
 
 # UploadInformation holds information used when uploading
 @dataclass()
 class UploadInformation:
-    identifier: Identifier = None
-    commitmsg: str = None
-    sourceurl: str = None
+    identifier: Identifier = Identifier()
+    commitmsg: str = ''
+    sourceurl: str = ''
     lastmodified: datetime.datetime = None
-    licence: str = None
+    licence: str = ''
     public: bool = True
     force: bool = True
     committimestamp: datetime.datetime = None
-    authorname: str = None
-    authoremail: str = None
-    committername: str = None
-    committeremail: str = None
-    otherparents: str = None
-    dbshasum: str = None
+    authorname: str = ''
+    authoremail: str = ''
+    committername: str = ''
+    committeremail: str = ''
+    otherparents: str = ''
+    dbshasum: str = ''
 
 
 class Dbhub:
-    VERSION = "1.0.0"
-
     PRESERVE_PK_MERGE = 1
     NEX_PK_MERGE = 2
 
@@ -112,7 +110,7 @@ class Dbhub:
 
     def __prepareVals(self, dbOwner: str = None, dbName: str = None, ident: Identifier = None):
         data = {}
-        if self._connection.api_key is not None:
+        if len(self._connection.api_key) > 0:
             data['apikey'] = (None, self._connection.api_key)
         if dbOwner is not None:
             data['dbowner'] = (None, dbOwner)
@@ -177,7 +175,7 @@ class Dbhub:
             return None, res
 
         for i, val in enumerate(res):
-            res[i] = _Dbhub__dict_to_object(val)
+            res[i] = _DbhubDictToObject(val)
 
         return res, None
 
@@ -201,7 +199,7 @@ class Dbhub:
         if err:
             return res
 
-        return None
+        return ''
 
     def Branches(self, db_owner: str, db_name: str) -> Tuple[Dict, str, str]:
         """
@@ -230,7 +228,7 @@ class Dbhub:
 
         branches = {}
         for branche_name in res["branches"]:
-            branches.update({branche_name: _Dbhub__dict_to_object(res['branches'][branche_name])})
+            branches.update({branche_name: _DbhubDictToObject(res['branches'][branche_name])})
 
         return branches, res["default_branch"], None
 
@@ -258,7 +256,7 @@ class Dbhub:
         if err:
             return None, res
 
-        commits = [_Dbhub__dict_to_object(res[i]) for i in res]
+        commits = [_DbhubDictToObject(res[i]) for i in res]
         for commit in commits:
             commit.timestamp = p.parse(commit.timestamp)
             for entry in commit.tree.entries:
@@ -334,7 +332,7 @@ class Dbhub:
         if err:
             return None, res
 
-        return _Dbhub__dict_to_object(res), None
+        return _DbhubDictToObject(res), None
 
     def Download(self, db_owner: str, db_name: str) -> Tuple[List[bytes], str]:
         """
@@ -382,7 +380,7 @@ class Dbhub:
         if err:
             return None, res
 
-        indexes = [_Dbhub__dict_to_object(index) for index in res]
+        indexes = [_DbhubDictToObject(index) for index in res]
 
         return indexes, None
 
@@ -410,25 +408,21 @@ class Dbhub:
         if err:
             return None, res
 
-        metadata = _Dbhub__dict_to_object(res)
+        metadata = _DbhubDictToObject(res)
 
         metadata.branches = {}
         for branche in res["branches"]:
-            metadata.branches.update({branche: _Dbhub__dict_to_object(res['branches'][branche])})
+            metadata.branches.update({branche: _DbhubDictToObject(res['branches'][branche])})
 
         metadata.releases = {}
         for release in res["releases"]:
-            metadata.releases.update({release: _Dbhub__dict_to_object(res['releases'][release])})
+            metadata.releases.update({release: _DbhubDictToObject(res['releases'][release])})
 
         metadata.tags = {}
         for tag in res["tags"]:
-            metadata.tags.update({tag: _Dbhub__dict_to_object(res['tags'][tag])})
+            metadata.tags.update({tag: _DbhubDictToObject(res['tags'][tag])})
 
-        '''metadata.commits = {}
-        for commit in res["commits"]:
-            metadata.commits.update({commit: _Dbhub__dict_to_object(res['commits'][commit])})'''
-
-        commits = [_Dbhub__dict_to_object(res['commits'][i]) for i in res['commits']]
+        commits = [_DbhubDictToObject(res['commits'][i]) for i in res['commits']]
         for commit in commits:
             commit.timestamp = p.parse(commit.timestamp)
         metadata.commits = commits
@@ -508,7 +502,7 @@ class Dbhub:
         if err:
             return None, res
 
-        releases = {index: _Dbhub__dict_to_object(res[index]) for index in res}
+        releases = {index: _DbhubDictToObject(res[index]) for index in res}
         for release in releases:
             releases[release].date = p.parse(releases[release].date)
 
@@ -568,7 +562,7 @@ class Dbhub:
         if err:
             return None, res
 
-        tags = {index: _Dbhub__dict_to_object(res[index]) for index in res}
+        tags = {index: _DbhubDictToObject(res[index]) for index in res}
         for tag in tags:
             tags[tag].date = p.parse(tags[tag].date)
 

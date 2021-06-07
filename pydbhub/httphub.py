@@ -1,9 +1,8 @@
+import pydbhub
 from typing import Any, Dict, List, Tuple
 from json.decoder import JSONDecodeError
 import requests
 import io
-
-import dbhub
 
 
 def send_request_json(query_url: str, data: Dict[str, Any]) -> Tuple[List[Any], str]:
@@ -26,7 +25,7 @@ def send_request_json(query_url: str, data: Dict[str, Any]) -> Tuple[List[Any], 
     """
 
     try:
-        headers = {'User-Agent': f'pydbhub v{dbhub.Dbhub.VERSION}'}
+        headers = {'User-Agent': f'pydbhub v{pydbhub.__version__}'}
         response = requests.post(query_url, data=data, headers=headers)
         response.raise_for_status()
         return response.json(), None
@@ -35,16 +34,16 @@ def send_request_json(query_url: str, data: Dict[str, Any]) -> Tuple[List[Any], 
     except TypeError as e:
         return None, e.args[0]
     except requests.exceptions.HTTPError as e:
-        if response is not None:
+        try:
             return response.json(), e.args[0]
-        else:
+        except JSONDecodeError:
             return None, e.args[0]
     except requests.exceptions.RequestException as e:
         cause = e.args(0)
         return None, str(cause.args[0])
 
 
-def send_request(query_url: str, data: Dict[str, Any]) -> List[bytes]:
+def send_request(query_url: str, data: Dict[str, Any]) -> Tuple[List[bytes], str]:
     """
     send_request sends a request to DBHub.io.
 
@@ -61,15 +60,12 @@ def send_request(query_url: str, data: Dict[str, Any]) -> List[bytes]:
         database file is returned as a list of bytes
     """
     try:
-        headers = {'User-Agent': f'pydbhub v{dbhub.Dbhub.VERSION}'}
+        headers = {'User-Agent': f'pydbhub v{pydbhub.__version__}'}
         response = requests.post(query_url, data=data, headers=headers)
         response.raise_for_status()
         return response.content, None
     except requests.exceptions.HTTPError as e:
-        if response is not None:
-            return response.json(), e.args[0]
-        else:
-            return None, e.args[0]
+        return None, e.args[0]
     except requests.exceptions.RequestException as e:
         cause = e.args(0)
         return None, str(cause.args[0])
@@ -96,21 +92,21 @@ def send_upload(query_url: str, data: Dict[str, Any], db_bytes: io.BufferedReade
         - a string describe error if occurs
     """
     try:
-        headers = {'User-Agent': f'pydbhub v{dbhub.Dbhub.VERSION}'}
+        headers = {'User-Agent': f'pydbhub v{pydbhub.__version__}'}
         files = {"file": db_bytes}
         response = requests.post(query_url, data=data, headers=headers, files=files)
         response.raise_for_status()
         if response.status_code != 201:
             # The returned status code indicates something went wrong
-            if response is not None:
+            try:
                 return response.json(), str(response.status_code)
-            else:
+            except JSONDecodeError:
                 return None, str(response.status_code)
         return response.json(), None
     except requests.exceptions.HTTPError as e:
-        if response is not None:
+        try:
             return response.json(), e.args[0]
-        else:
+        except JSONDecodeError:
             return None, e.args[0]
     except requests.exceptions.RequestException as e:
         cause = e.args(0)
