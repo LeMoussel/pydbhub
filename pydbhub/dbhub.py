@@ -465,8 +465,8 @@ class Dbhub:
             for data in result_row:
                 result = {
                     0: lambda v: base64.b64decode(v.encode('ascii')) if isinstance(v, str) else None,   # Binary
-                    1: lambda: "",                                                                      # Image - just output as an empty string (for now)
-                    2: lambda: None,                                                                    # Null
+                    1: lambda v: "",                                                                    # Image - just output as an empty string (for now)
+                    2: lambda v: None,                                                                  # Null
                     3: lambda v: str(v) if isinstance(v, str) else "",                                  # Text
                     4: lambda v: int(v),                                                                # Integer
                     5: lambda v: float(v)                                                               # Float
