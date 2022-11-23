@@ -29,11 +29,3 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
 )
-
-# Packaging Python Projects: https://packaging.python.org/tutorials/packaging-projects/#uploading-your-project-to-pypi
-#
-#   python setup.py test
-#   python setup.py bdist_wheel
-#
-#   twine check dist/<paquet .whl> or dist/*
-#   twine upload dist/<paquet .whl> or dist/*
