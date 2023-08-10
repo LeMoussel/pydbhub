@@ -35,13 +35,22 @@ def test_configuration():
 
 # https://api.dbhub.io/#databases
 def test_databases(connection):
-    databases, err = connection.Databases()
+    known_dbs = ("Marine Litter Survey (Keep Northern Ireland Beautiful).sqlite", "Join Testing.sqlite")
+    known_live_dbs = ("DB4S daily users by country-live.sqlite", "Join Testing-live.sqlite")
+    
+    databases, err = connection.Databases(live=False)
     assert err is None, err
     assert databases is not None, 'No data result'
     assert len(databases) >= 1, 'Missing data result'
-    matching = ("Marine Litter Survey (Keep Northern Ireland Beautiful).sqlite") in databases
-    matching |= ("Join Testing.sqlite") in databases
-    assert matching
+    assert any(db in databases for db in known_dbs), 'Missing data result'
+    assert not any(live_db in databases for live_db in known_live_dbs), 'Incorrect data result'
+
+    live_databases, err = connection.Databases(live=True)
+    assert err is None, err
+    assert live_databases is not None, 'No data result'
+    assert len(live_databases) >= 1, 'Missing data result'
+    assert any(live_db in live_databases for live_db in known_live_dbs), 'Missing data result'
+    assert not any(db in live_databases for db in known_dbs), 'Incorrect data result'
 
 
 # https://api.dbhub.io/#columns

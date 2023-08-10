@@ -127,7 +127,7 @@ class Dbhub:
                 data['tag'] = (None, ident.tag)
         return data
 
-    def Databases(self) -> Tuple[List[str], str]:
+    def Databases(self, live: bool = False) -> Tuple[List[str], str]:
         """
         Returns the list of databases in the requesting users account.
         Ref: https://api.dbhub.io/#databases
@@ -142,6 +142,8 @@ class Dbhub:
         data = {
             'apikey': (None, self._connection.api_key),
         }
+        if live:
+            data['live'] = "true"
         return httphub.send_request_json(self._connection.server + "/v1/databases", data)
 
     def Columns(self, db_owner: str, db_name: str, table: str, ident: Identifier = None) -> Tuple[List[Dict], str]:
