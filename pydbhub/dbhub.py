@@ -127,7 +127,7 @@ class Dbhub:
                 data['tag'] = (None, ident.tag)
         return data
 
-    def Databases(self) -> Tuple[List[str], str]:
+    def Databases(self, live: bool = False) -> Tuple[List[str], str]:
         """
         Returns the list of databases in the requesting users account.
         Ref: https://api.dbhub.io/#databases
@@ -142,6 +142,8 @@ class Dbhub:
         data = {
             'apikey': (None, self._connection.api_key),
         }
+        if live:
+            data['live'] = "true"
         return httphub.send_request_json(self._connection.server + "/v1/databases", data)
 
     def Columns(self, db_owner: str, db_name: str, table: str, ident: Identifier = None) -> Tuple[List[Dict], str]:
@@ -355,6 +357,35 @@ class Dbhub:
         """
         data = self.__prepareVals(db_owner, db_name)
         return httphub.send_request(self._connection.server + "/v1/download", data)
+
+    def Execute(self, db_owner: str, db_name: str, sql: str) -> Tuple[int, str]:
+        """
+        Execute a SQLite statement (INSERT, UPDATE, DELETE) on the chosen database, returning the rows changed.
+        Ref: https://api.dbhub.io/#execute
+
+        Parameters
+        ----------
+        db_owner : str
+            The owner of the database
+        db_name : str
+            The name of the live database
+        sql : str
+            The SQLite statement (INSERT, UPDATE, DELETE)
+
+        Returns
+        -------
+        Tuple[int, str]
+            The returned data is
+                - an integer corresponding to the number of rows changed
+                - a string describing the error, if one occurs
+        """
+        data = self.__prepareVals(db_owner, db_name)
+        data['sql'] = base64.b64encode(sql.encode('ascii'))
+        res, err = httphub.send_request_json(self._connection.server + "/v1/execute", data)
+        if err:
+            return None, res
+
+        return res['rows_changed'], None
 
     def Indexes(self, db_owner: str, db_name: str) -> Tuple[List[Dict], str]:
         """

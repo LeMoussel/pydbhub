@@ -35,13 +35,22 @@ def test_configuration():
 
 # https://api.dbhub.io/#databases
 def test_databases(connection):
-    databases, err = connection.Databases()
+    known_dbs = ("Marine Litter Survey (Keep Northern Ireland Beautiful).sqlite", "Join Testing.sqlite")
+    known_live_dbs = ("DB4S daily users by country-live.sqlite", "Join Testing-live.sqlite")
+    
+    databases, err = connection.Databases(live=False)
     assert err is None, err
     assert databases is not None, 'No data result'
     assert len(databases) >= 1, 'Missing data result'
-    matching = ("Marine Litter Survey (Keep Northern Ireland Beautiful).sqlite") in databases
-    matching |= ("Join Testing.sqlite") in databases
-    assert matching
+    assert any(db in databases for db in known_dbs), 'Missing data result'
+    assert not any(live_db in databases for live_db in known_live_dbs), 'Incorrect data result'
+
+    live_databases, err = connection.Databases(live=True)
+    assert err is None, err
+    assert live_databases is not None, 'No data result'
+    assert len(live_databases) >= 1, 'Missing data result'
+    assert any(live_db in live_databases for live_db in known_live_dbs), 'Missing data result'
+    assert not any(db in live_databases for db in known_dbs), 'Incorrect data result'
 
 
 # https://api.dbhub.io/#columns
@@ -92,6 +101,20 @@ def test_download(connection):
     buf, err = connection.Download(db_name="Join Testing.sqlite", db_owner="justinclift")
     assert err is None, err
     assert len(buf) == 12288
+
+
+# https://api.dbhub.io/#execute
+def test_execute(connection):
+    rows_changed, err = connection.Execute(
+        db_owner='justinclift',
+        db_name="Join Testing-live.sqlite",
+        sql='''
+        UPDATE table1 SET Name = 'Foo' WHERE id = 1
+        '''
+    )
+    assert err is None, err
+    assert rows_changed is not None, 'No data result'
+    assert rows_changed == 1, 'Incorrect data result'
 
 
 # https://api.dbhub.io/#indexes
