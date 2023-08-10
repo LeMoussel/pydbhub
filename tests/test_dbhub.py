@@ -103,6 +103,20 @@ def test_download(connection):
     assert len(buf) == 12288
 
 
+# https://api.dbhub.io/#execute
+def test_execute(connection):
+    rows_changed, err = connection.Execute(
+        db_owner='justinclift',
+        db_name="Join Testing-live.sqlite",
+        sql='''
+        UPDATE table1 SET Name = 'Foo' WHERE id = 1
+        '''
+    )
+    assert err is None, err
+    assert rows_changed is not None, 'No data result'
+    assert rows_changed == 1, 'Incorrect data result'
+
+
 # https://api.dbhub.io/#indexes
 def test_indexes(connection):
     indexes, err = connection.Indexes(db_name="DB4S daily users by country.sqlite", db_owner="justinclift")

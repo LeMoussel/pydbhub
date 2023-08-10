@@ -358,6 +358,35 @@ class Dbhub:
         data = self.__prepareVals(db_owner, db_name)
         return httphub.send_request(self._connection.server + "/v1/download", data)
 
+    def Execute(self, db_owner: str, db_name: str, sql: str) -> Tuple[int, str]:
+        """
+        Execute a SQLite statement (INSERT, UPDATE, DELETE) on the chosen database, returning the rows changed.
+        Ref: https://api.dbhub.io/#execute
+
+        Parameters
+        ----------
+        db_owner : str
+            The owner of the database
+        db_name : str
+            The name of the live database
+        sql : str
+            The SQLite statement (INSERT, UPDATE, DELETE)
+
+        Returns
+        -------
+        Tuple[int, str]
+            The returned data is
+                - an integer corresponding to the number of rows changed
+                - a string describing the error, if one occurs
+        """
+        data = self.__prepareVals(db_owner, db_name)
+        data['sql'] = base64.b64encode(sql.encode('ascii'))
+        res, err = httphub.send_request_json(self._connection.server + "/v1/execute", data)
+        if err:
+            return None, res
+
+        return res['rows_changed'], None
+
     def Indexes(self, db_owner: str, db_name: str) -> Tuple[List[Dict], str]:
         """
         Returns the details of all indexes in a SQLite database
